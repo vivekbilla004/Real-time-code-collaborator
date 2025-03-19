@@ -1,20 +1,52 @@
 import React, { useState } from "react";
-import Editor from "@monaco-editor/react";
+import MonacoEditor from "@monaco-editor/react";
 
-const CodeEditor = ({ language = "javascript", code, setCode }) => {
+const CodeEditor = ({ code, setCode, activeFile }) => {
+  const [fontSize, setFontSize] = useState(14);
+
+  // Function to detect language based on file extension
+  const getLanguage = (filename) => {
+    if (!filename) return "javascript"; // Default language
+    const ext = filename.split(".").pop();
+    const languageMap = {
+      js: "javascript",
+      ts: "typescript",
+      py: "python",
+      cpp: "cpp",
+      java: "java",
+      html: "html",
+      css: "css",
+      json: "json",
+    };
+    return languageMap[ext] || "plaintext";
+  };
+
   return (
-    <div className="w-full h-full bg-gray-900 border border-gray-700">
-      <Editor
+    <div className="h-full flex flex-col">
+      {/* Font Size Controls */}
+      <div className="flex items-center justify-between bg-gray-800 text-white p-2">
+        <span>Font Size:</span>
+        <input
+          type="range"
+          min="12"
+          max="24"
+          value={fontSize}
+          onChange={(e) => setFontSize(Number(e.target.value))}
+        />
+      </div>
+
+      {/* Monaco Editor */}
+      <MonacoEditor
         height="100%"
-        width="100%"
         theme="vs-dark"
-        language={language}
+        language={getLanguage(activeFile)}
         value={code}
-        onChange={(newCode) => setCode(newCode)}
+        onChange={(value) => setCode(value)}
         options={{
-          minimap: { enabled: true },
-          fontSize: 14,
+          fontSize: fontSize,
           automaticLayout: true,
+          minimap: { enabled: true },
+          wordWrap: "on",
         }}
       />
     </div>
